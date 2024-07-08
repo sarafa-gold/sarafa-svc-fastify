@@ -102,9 +102,6 @@ class FastifyService extends ServiceBase {
   _start (cb: (err?: Error | null, results?: any) => void): void {
     async.series(
       [
-        next => {
-          super._stop(next)
-        },
         async () => {
           this.startServer()
         }
@@ -154,9 +151,6 @@ class FastifyService extends ServiceBase {
   _stop (cb: (err?: Error | null, results?: any) => void): void {
     async.series(
       [
-        next => {
-          super._stop(next)
-        },
         async () => {
           if (this.server) {
             await this.server.close()
