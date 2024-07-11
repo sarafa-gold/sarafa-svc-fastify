@@ -1,6 +1,5 @@
 import ServiceBase from 'sarafa-svc-base'
 import { FastifyInstance } from 'fastify'
-
 declare class FastifyService extends ServiceBase {
   server: FastifyInstance | undefined
   handler: any
@@ -14,10 +13,14 @@ declare class FastifyService extends ServiceBase {
     plugins: Array<any>
     routes: Array<any>
     decorators: Array<any>
+    customAppHandler: Promise<any> | null
   }
   constructor(handler: any)
   startServer(): Promise<string>
-  register(type: 'plugins' | 'decorators' | 'routes', data: []): void
+  register(
+    type: 'plugins' | 'decorators' | 'routes',
+    data: Array<any> | Promise<void>
+  ): void
   _start(cb: (err?: Error | null, results?: any) => void): void
   underPressureConfig: () => {
     healthCheck: () => Promise<boolean>
@@ -43,9 +46,9 @@ declare class FastifyService extends ServiceBase {
     root: string
     prefix: string
   }
-  stop(cb: (err?: Error | null, results?: any) => void): void;
-  start(cb: (err?: Error | null, results?: any) => void): void;
-  _stop(cb: (err?: Error | null, results?: any) => void): void;
-  _start(cb: (err?: Error | null, results?: any) => void): void;
+  stop(cb: (err?: Error | null, results?: any) => void): void
+  start(cb: (err?: Error | null, results?: any) => void): void
+  _stop(cb: (err?: Error | null, results?: any) => void): void
+  _start(cb: (err?: Error | null, results?: any) => void): void
 }
 export default FastifyService

@@ -16,7 +16,12 @@ class FastifyService extends ServiceBase {
     disableRequestLogging: boolean
     port: number
   }
-  mem: { plugins: Array<any>; routes: Array<any>; decorators: Array<any> }
+  mem: {
+    plugins: Array<any>
+    routes: Array<any>
+    decorators: Array<any>
+    customAppHandler: Promise<any> | null
+  }
 
   constructor (handler: any) {
     super(handler)
@@ -42,7 +47,8 @@ class FastifyService extends ServiceBase {
         }
       ],
       routes: [],
-      decorators: []
+      decorators: [],
+      customAppHandler: null
     }
 
     this.init()
@@ -87,16 +93,26 @@ class FastifyService extends ServiceBase {
       this.server.route(r)
     })
 
+    if (this.mem.customAppHandler) {
+      this.server.register(this.mem.customAppHandler, {prefix:'/'})
+    }
     return await this.server.listen({
       port: this.opts.port
     })
   }
 
-  register (type: 'plugins' | 'decorators' | 'routes', data: []) {
+  register (
+    type: 'plugins' | 'decorators' | 'routes',
+    data: Array<any> | Promise<void>
+  ) {
     if (this.server) {
       throw new Error('ERR_SERVICE_FASTIFY_RUNNING_AND INITIALIZED')
     }
-    this.mem[type] = this.mem[type].concat(data)
+    if (Array.isArray(data)) {
+      this.mem[type] = this.mem[type].concat(data)
+    } else {
+      this.mem.customAppHandler = data
+    }
   }
 
   _start (cb: (err?: Error | null, results?: any) => void): void {
