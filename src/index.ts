@@ -20,7 +20,7 @@ class FastifyService extends ServiceBase {
     plugins: Array<any>
     routes: Array<any>
     decorators: Array<any>
-    customAppHandler: Promise<any> | null
+    customFn: Array<any>
   }
 
   constructor (handler: any) {
@@ -48,7 +48,7 @@ class FastifyService extends ServiceBase {
       ],
       routes: [],
       decorators: [],
-      customAppHandler: null
+      customFn: []
     }
 
     this.init()
@@ -93,26 +93,28 @@ class FastifyService extends ServiceBase {
       this.server.route(r)
     })
 
-    if (this.mem.customAppHandler) {
-      this.server.register(this.mem.customAppHandler, {prefix:'/'})
-    }
+    this.mem.customFn.forEach(fn => {
+      if (!this.server) {
+        throw new Error(
+          `ERR_SERVICE_FASTIFY_NO_SERVER_FOUND_RESGITERING_CUSTOM_FN${this.handler?.name}`
+        )
+      }
+      this.server.register(fn.customFn, fn.config)
+    })
+
     return await this.server.listen({
       port: this.opts.port
     })
   }
 
   register (
-    type: 'plugins' | 'decorators' | 'routes',
-    data: Array<any> | Promise<void>
+    type: 'plugins' | 'decorators' | 'routes' | 'customFn',
+    data: Array<any>
   ) {
     if (this.server) {
       throw new Error('ERR_SERVICE_FASTIFY_RUNNING_AND INITIALIZED')
     }
-    if (Array.isArray(data)) {
-      this.mem[type] = this.mem[type].concat(data)
-    } else {
-      this.mem.customAppHandler = data
-    }
+    this.mem[type] = this.mem[type].concat(data)
   }
 
   _start (cb: (err?: Error | null, results?: any) => void): void {

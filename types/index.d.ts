@@ -13,13 +13,13 @@ declare class FastifyService extends ServiceBase {
     plugins: Array<any>
     routes: Array<any>
     decorators: Array<any>
-    customAppHandler: Promise<any> | null
+    customFn: Array<any>
   }
   constructor(handler: any)
   startServer(): Promise<string>
   register(
-    type: 'plugins' | 'decorators' | 'routes',
-    data: Array<any> | Promise<void>
+    type: 'plugins' | 'decorators' | 'routes' | 'customFn',
+    data: Array<any>
   ): void
   _start(cb: (err?: Error | null, results?: any) => void): void
   underPressureConfig: () => {
